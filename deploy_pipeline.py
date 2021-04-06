@@ -1,32 +1,54 @@
 import boto3
 import sagemaker
+import git
+import sys
 
 from pipelines.funnytravis.pipeline import get_pipeline
+
+
+
+def deploy(name, hash):
+    # Change these to reflect your project/business name or if you want to separate ModelPackageGroup/Pipeline from the rest of your team
+    pipeline_name = f"FunnyTravis-{name}"
+
+    pipeline = get_pipeline(
+        region=region,
+        role=role,
+        default_bucket=default_bucket,
+        pipeline_name=f"{pipeline_name}",
+        base_job_prefix=pipeline_name
+    )
+
+    pipeline.upsert(role_arn=role)
+    print(pipeline)
+
+    client = boto3.client("sagemaker")
+
+    response = client.update_pipeline(
+        PipelineName=f'{pipeline_name}',
+        PipelineDisplayName=f'{pipeline_name}-{hash}',
+        PipelineDescription='test',
+    )
+    print(response)
+
 
 
 region = boto3.Session().region_name
 role = sagemaker.get_execution_role()
 default_bucket = sagemaker.session.Session().default_bucket()
 
-# Change these to reflect your project/business name or if you want to separate ModelPackageGroup/Pipeline from the rest of your team
-pipeline_name = f"FunnyTravis-PROD"
 
-pipeline = get_pipeline(
-    region=region,
-    role=role,
-    default_bucket=default_bucket,
-    pipeline_name=f"{pipeline_name}",
-    base_job_prefix=pipeline_name
-)
+supported_tags = list()
+with open('SUPPORTED_TAGS') as tags: 
+    supported_tags = tags.read().splitlines()
 
-pipeline.upsert(role_arn=role)
-print(pipeline)
+print (supported_tags)
 
-client = boto3.client("sagemaker")
+# Get current tag set 
+repo = git.Repo("./")
+for tag in [ tag.name for tag in repo.tags if tag.commit == repo.head.commit ]:
+    if tag in supported_tags:
+        print(f"update pipeline for {tag}")
+        deploy(name=tag,hash=repo.head.commit)
 
-response = client.update_pipeline(
-    PipelineName=f'{pipeline_name}',
-    PipelineDisplayName=f'{pipeline_name}-version1',
-    PipelineDescription='test',
-)
-print(response)
+
