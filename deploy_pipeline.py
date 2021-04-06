@@ -25,7 +25,7 @@ print(pipeline)
 client = boto3.client("sagemaker")
 
 response = client.update_pipeline(
-    PipelineName=f'{pipeline_name}'
+    PipelineName=f'{pipeline_name}',
     PipelineDisplayName=f'{pipeline_name}-version1',
     PipelineDescription='test',
 )
