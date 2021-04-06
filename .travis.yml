@@ -10,10 +10,10 @@ env:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements-travis.txt
 
 # command to run tests
 script:
   - aws sts get-caller-identity
-  - python deploy_pipeline
+  - python deploy_pipeline.py
 
