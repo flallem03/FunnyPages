@@ -1,5 +1,6 @@
 black==19.10b0
 boto3
+awscli
 jupyterlab
 sagemaker
 gitpython
