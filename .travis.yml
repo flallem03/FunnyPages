@@ -2,7 +2,6 @@ language: python
 python: "3.9"
 sudo: false
 
-
 env:
   global:
     - AWS_DEFAULT_REGION=eu-west-1
@@ -16,4 +15,5 @@ install:
 # command to run tests
 script:
   - aws sts get-caller-identity
+  - python deploy_pipeline
 

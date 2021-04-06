@@ -41,7 +41,7 @@ from sagemaker.workflow.steps import (
     ProcessingStep,
     TrainingStep,
 )
-from sagemaker.workflow.step_collections import RegisterModel
+#from sagemaker.workflow.step_collections import RegisterModel
 
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -72,11 +72,11 @@ def get_session(region, default_bucket):
 
 def get_pipeline(
     region,
+    pipeline_name,
+    base_job_prefix,
     role=None,
-    default_bucket=None,
-    model_package_group_name="AbalonePackageGroup",
-    pipeline_name="AbalonePipeline",
-    base_job_prefix="Abalone",
+    default_bucket=None
+    #model_package_group_name="AbalonePackageGroup",
 ):
     """Gets a SageMaker ML Pipeline instance working with on abalone data.
 
@@ -222,18 +222,18 @@ def get_pipeline(
             content_type="application/json"
         )
     )
-    step_register = RegisterModel(
-        name="RegisterAbaloneModel",
-        estimator=xgb_train,
-        model_data=step_train.properties.ModelArtifacts.S3ModelArtifacts,
-        content_types=["text/csv"],
-        response_types=["text/csv"],
-        inference_instances=["ml.t2.medium", "ml.m5.large"],
-        transform_instances=["ml.m5.large"],
-        model_package_group_name=model_package_group_name,
-        approval_status=model_approval_status,
-        model_metrics=model_metrics,
-    )
+    #step_register = RegisterModel(
+    #    name="RegisterAbaloneModel",
+    #    estimator=xgb_train,
+    #    model_data=step_train.properties.ModelArtifacts.S3ModelArtifacts,
+    #    content_types=["text/csv"],
+    #    response_types=["text/csv"],
+    #    inference_instances=["ml.t2.medium", "ml.m5.large"],
+    #    transform_instances=["ml.m5.large"],
+    #    model_package_group_name=model_package_group_name,
+    #    approval_status=model_approval_status,
+    #    model_metrics=model_metrics,
+    #)
 
     # condition step for evaluating model quality and branching execution
     cond_lte = ConditionLessThanOrEqualTo(
@@ -244,12 +244,12 @@ def get_pipeline(
         ),
         right=6.0,
     )
-    step_cond = ConditionStep(
-        name="CheckMSEAbaloneEvaluation",
-        conditions=[cond_lte],
-        if_steps=[step_register],
-        else_steps=[],
-    )
+    #step_cond = ConditionStep(
+    #    name="CheckMSEAbaloneEvaluation",
+    #    conditions=[cond_lte],
+    #    if_steps=[step_register],
+    #    else_steps=[],
+    #)
 
     # pipeline instance
     pipeline = Pipeline(
@@ -261,7 +261,8 @@ def get_pipeline(
             model_approval_status,
             input_data,
         ],
-        steps=[step_process, step_train, step_eval, step_cond],
+        #steps=[step_process, step_train, step_eval, step_cond],
+        steps=[step_process, step_train, step_eval],
         sagemaker_session=sagemaker_session,
     )
     return pipeline
