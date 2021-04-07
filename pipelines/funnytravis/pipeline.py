@@ -9,6 +9,7 @@
 Implements a get_pipeline(**kwargs) method.
 """
 import os
+import git
 
 import boto3
 import sagemaker
@@ -73,6 +74,7 @@ def get_session(region, default_bucket):
 def get_pipeline(
     region,
     pipeline_name,
+    version,
     base_job_prefix,
     role=None,
     default_bucket=None
@@ -106,6 +108,10 @@ def get_pipeline(
     input_data = ParameterString(
         name="InputDataUrl",
         default_value=f"s3://sagemaker-servicecatalog-seedcode-{region}/dataset/abalone-dataset.csv",
+    )
+    commit_version = ParameterString(
+        name="VERSION",
+        default_value=version,
     )
 
     # processing step for feature engineering
