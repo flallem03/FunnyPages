@@ -112,11 +112,11 @@ def get_pipeline(
     commit_version = ParameterString(
         name="VERSION",
         default_value=str(version),
-    ), 
+    ) 
     customer_name = ParameterString(
         name="CUSTOMER",
         default_value='Default',
-    ),
+    )
 
     # processing step for feature engineering
     sklearn_processor = SKLearnProcessor(
