@@ -18,6 +18,5 @@ install:
 
 # command to run tests
 script:
-  - aws sts get-caller-identity
   - python deploy_pipeline.py
 
