@@ -2,9 +2,11 @@ import boto3
 import sagemaker
 import git
 import sys
+import logging
 
 from pipelines.funnytravis.pipeline import get_pipeline
 
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
 def deploy(name, version):
@@ -19,9 +21,7 @@ def deploy(name, version):
         pipeline_name=f"{pipeline_name}",
         base_job_prefix=pipeline_name
     )
-
-    pipeline.upsert(role_arn=role)
-    print(pipeline)
+    logging.info(f"Pipeline : {pipeline}")
 
     client = boto3.client("sagemaker")
 
@@ -30,8 +30,7 @@ def deploy(name, version):
         PipelineDisplayName=f'{pipeline_name}-{version}',
         PipelineDescription='test',
     )
-    print(response)
-
+    logging.info(f"update response : {response}")
 
 
 region = boto3.Session().region_name
@@ -43,7 +42,7 @@ supported_tags = list()
 with open('SUPPORTED_TAGS') as tags: 
     supported_tags = tags.read().splitlines()
 
-print (supported_tags)
+logging.info (f"Supported Tags: {supported_tags}")
 
 # Get current tag set 
 repo = git.Repo("./")

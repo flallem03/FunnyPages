@@ -1,4 +1,5 @@
-boto3
 awscli
-sagemaker
+boto3
 gitpython
+pandas
+sagemaker

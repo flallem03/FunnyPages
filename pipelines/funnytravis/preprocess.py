@@ -57,7 +57,7 @@ if __name__ == "__main__":
     logger.debug("Starting preprocessing.")
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-data", type=str, required=True)
-    parser.add_argument("--customer", type=str, required=True)
+    parser.add_argument("--customer_name", type=str, required=True)
     args = parser.parse_args()
 
     
