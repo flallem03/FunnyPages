@@ -19,7 +19,6 @@ def deploy(name, version):
         pipeline_name=f"{pipeline_name}",
         base_job_prefix=pipeline_name
     )
-    return 0
 
     pipeline.upsert(role_arn=role)
     print(pipeline)
