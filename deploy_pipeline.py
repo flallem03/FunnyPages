@@ -16,7 +16,7 @@ def deploy(name, version):
     pipeline = get_pipeline(
         region=region,
         role=role,
-        version=version,
+        version=version[:7],
         default_bucket=default_bucket,
         pipeline_name=f"{pipeline_name}",
         base_job_prefix=pipeline_name
@@ -27,8 +27,9 @@ def deploy(name, version):
 
     response = client.update_pipeline(
         PipelineName=f'{pipeline_name}',
-        PipelineDisplayName=f'{pipeline_name}-{version}',
-        PipelineDescription='test',
+        PipelineDisplayName=f'{pipeline_name}-{version[:7]}',
+        PipelineDescription=f'pipeline and code in version {version}',
+        PipelineDefinition=pipeline.definition(),
     )
     logging.info(f"update response : {response}")
 
@@ -49,4 +50,4 @@ repo = git.Repo("./")
 for tag in [ tag.name for tag in repo.tags if tag.commit == repo.head.commit ]:
     if tag in supported_tags:
         print(f"update pipeline for {str(tag)}")
-        deploy(name=tag,version=str(repo.head.commit.hexsha[:7]))
+        deploy(name=tag,version=str(repo.head.commit.hexsha))
