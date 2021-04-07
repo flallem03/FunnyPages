@@ -112,7 +112,11 @@ def get_pipeline(
     commit_version = ParameterString(
         name="VERSION",
         default_value=str(version),
-    )
+    ), 
+    customer_name = ParameterString(
+        name="CUSTOMER",
+        default_value='Default',
+    ),
 
     # processing step for feature engineering
     sklearn_processor = SKLearnProcessor(
@@ -132,7 +136,7 @@ def get_pipeline(
             ProcessingOutput(output_name="test", source="/opt/ml/processing/test"),
         ],
         code=os.path.join(BASE_DIR, "preprocess.py"),
-        job_arguments=["--input-data", input_data],
+        job_arguments=["--input-data", input_data, "--customer_name", customer_name],
     )
 
     # training step for generating model artifacts
@@ -266,7 +270,8 @@ def get_pipeline(
             training_instance_type,
             model_approval_status,
             input_data,
-            commit_version
+            commit_version, 
+            customer_name
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
         steps=[step_process, step_train, step_eval],
