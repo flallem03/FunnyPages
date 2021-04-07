@@ -266,6 +266,7 @@ def get_pipeline(
             training_instance_type,
             model_approval_status,
             input_data,
+            commit_version
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
         steps=[step_process, step_train, step_eval],
