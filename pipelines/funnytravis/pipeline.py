@@ -102,9 +102,9 @@ def get_pipeline(
     training_instance_type = ParameterString(
         name="TrainingInstanceType", default_value="ml.m5.xlarge"
     )
-    model_approval_status = ParameterString(
-        name="ModelApprovalStatus", default_value="PendingManualApproval"
-    )
+    #model_approval_status = ParameterString(
+    #    name="ModelApprovalStatus", default_value="PendingManualApproval"
+    #)
     input_data = ParameterString(
         name="InputDataUrl",
         default_value=f"s3://sagemaker-servicecatalog-seedcode-{region}/dataset/abalone-dataset.csv",
@@ -268,7 +268,7 @@ def get_pipeline(
             processing_instance_type,
             processing_instance_count,
             training_instance_type,
-            model_approval_status,
+            #model_approval_status,
             input_data,
             commit_version, 
             customer_name
