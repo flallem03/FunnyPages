@@ -14,7 +14,7 @@ def deploy(name, version):
     pipeline = get_pipeline(
         region=region,
         role=role,
-        version=version
+        version=version,
         default_bucket=default_bucket,
         pipeline_name=f"{pipeline_name}",
         base_job_prefix=pipeline_name
