@@ -50,5 +50,5 @@ repo = git.Repo("./")
 for tag in [ tag.name for tag in repo.tags if tag.commit == repo.head.commit ]:
     if tag in supported_tags:
         print(f"update pipeline for {tag}")
-        deploy(name=tag,version=repo.head.commit)
+        deploy(name=tag,version=str(repo.head.commit))
 

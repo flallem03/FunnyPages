@@ -111,7 +111,7 @@ def get_pipeline(
     )
     commit_version = ParameterString(
         name="VERSION",
-        default_value=version,
+        default_value=str(version),
     )
 
     # processing step for feature engineering
