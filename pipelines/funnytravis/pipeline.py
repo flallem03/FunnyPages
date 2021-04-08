@@ -92,7 +92,10 @@ def get_pipeline(
     """
     sagemaker_session = get_session(region, default_bucket)
     if role is None:
-        role = sagemaker.session.get_execution_role(sagemaker_session)
+        try:
+            role = sagemaker.session.get_execution_role(sagemaker_session)
+        except ValueError:
+            role = boto3.client('iam').get_role(RoleName='SM_Role')['Role']['Arn']
 
     # parameters for pipeline execution
     processing_instance_count = ParameterInteger(name="ProcessingInstanceCount", default_value=1)
@@ -123,12 +126,12 @@ def get_pipeline(
         framework_version="0.23-1",
         instance_type=processing_instance_type,
         instance_count=processing_instance_count,
-        base_job_name=f"{base_job_prefix}/sklearn-abalone-preprocess",
+        base_job_name=f"{base_job_prefix}/{pipeline_name}-preprocess",
         sagemaker_session=sagemaker_session,
         role=role,
     )
     step_process = ProcessingStep(
-        name="PreprocessAbaloneData",
+        name=f"{pipeline_name}-Preprocess",
         processor=sklearn_processor,
         outputs=[
             ProcessingOutput(output_name="train", source="/opt/ml/processing/train"),
@@ -140,7 +143,7 @@ def get_pipeline(
     )
 
     # training step for generating model artifacts
-    model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
+    model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/{pipeline_name}-Train"
     image_uri = sagemaker.image_uris.retrieve(
         framework="xgboost",
         region=region,
@@ -153,7 +156,7 @@ def get_pipeline(
         instance_type=training_instance_type,
         instance_count=1,
         output_path=model_path,
-        base_job_name=f"{base_job_prefix}/abalone-train",
+        base_job_name=f"{base_job_prefix}/{pipeline_name}-train",
         sagemaker_session=sagemaker_session,
         role=role,
     )
@@ -168,7 +171,7 @@ def get_pipeline(
         silent=0,
     )
     step_train = TrainingStep(
-        name="TrainAbaloneModel",
+        name=f"Train-{pipeline_name}-Model",
         estimator=xgb_train,
         inputs={
             "train": TrainingInput(
@@ -192,17 +195,17 @@ def get_pipeline(
         command=["python3"],
         instance_type=processing_instance_type,
         instance_count=1,
-        base_job_name=f"{base_job_prefix}/script-abalone-eval",
+        base_job_name=f"{base_job_prefix}/script-{pipeline_name}-eval",
         sagemaker_session=sagemaker_session,
         role=role,
     )
     evaluation_report = PropertyFile(
-        name="AbaloneEvaluationReport",
+        name=f"{pipeline_name}-EvaluationReport",
         output_name="evaluation",
         path="evaluation.json",
     )
     step_eval = ProcessingStep(
-        name="EvaluateAbaloneModel",
+        name=f"Evaluate-{pipeline_name}-Model",
         processor=script_eval,
         inputs=[
             ProcessingInput(
@@ -274,7 +277,7 @@ def get_pipeline(
             customer_name
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train, step_eval],
+        steps=[step_process],
         sagemaker_session=sagemaker_session,
     )
     return pipeline
