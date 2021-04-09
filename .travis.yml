@@ -8,7 +8,6 @@ branches:
 
 env:
   global:
-    - AWS_DEFAULT_REGION=us-east-1
     - PYTHONPATH=$TRAVIS_BUILD_DIR:$PYTHONPATH
 
 
