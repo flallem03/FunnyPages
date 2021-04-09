@@ -10,10 +10,23 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 
 
 region = boto3.Session().region_name
+
+#Get Role
+#Must set ROLE or ROLE_ARN as environment variables
 try:
     role = sagemaker.get_execution_role()
-except ValueError:
-    role = boto3.client('iam').get_role(RoleName='SM_Role')['Role']['Arn']
+except:
+    logging.info("couldn\'t get role from sagemaker session")
+    #ROLE must be set as an environment variable
+    try:
+        role = boto3.client('iam').get_role(RoleName=str(os.environ.get('ROLE')))['Role']['Arn']
+    except:
+        logging.info("couldn\'t get role from sagemaker session nor from ROLE")
+        #ROLE_ARN must be set as an environment variable
+        role = os.environ.get('ROLE_ARN')
+        if role == None:
+            raise Exception("Couldn't get Role for SageMaker")
+            
 default_bucket = sagemaker.session.Session().default_bucket()
 
 
