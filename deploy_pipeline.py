@@ -3,6 +3,7 @@ import sagemaker
 import git
 import sys
 import logging
+import os
 
 from pipelines.funnytravis.pipeline import get_pipeline
 
