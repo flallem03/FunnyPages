@@ -2,10 +2,6 @@ language: python
 python: "3.9"
 sudo: false
 
-#branches:
-#  except:
-#  - main
-
 env:
   global:
     - PYTHONPATH=$TRAVIS_BUILD_DIR:$PYTHONPATH
@@ -17,5 +13,6 @@ install:
 
 # command to run tests
 script:
+  - echo $AWS_DEFAULT_REGION
   - python deploy_pipeline.py
 
