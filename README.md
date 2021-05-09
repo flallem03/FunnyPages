@@ -1,3 +1,27 @@
+# use Travis to launch a project
+
+The travis job is currently designed to be launch when a new tag is applyed to a current commit.
+Consequently, in order to deploy a new version, you will have to do the following.
+
+1. push your changes to the remote branch named "main".
+   > this operation will NOT trigger a build
+
+Now, in the case of you want to create a pipeline for the experiment named "EXP1", do the following:
+
+2. Remove existing TAG related to the current experiment you want to do..
+   This operation has to be done locally and on the origin
+ 
+	git tag -d FunnyPage-EXP1
+	git push -d origin FunnyPage-EXP1
+
+3. Create a tag to the target commit and push it the the origin
+
+	git tag FunnyPage-EXP1
+	git push origin FunnyPage-EXP1
+
+This latest command with push the tag to your origin and launch a new travis job
+	
+
 ## Layout of the SageMaker ModelBuild Project Template
 
 The template provides a starting point for bringing your SageMaker Pipeline development to production.
