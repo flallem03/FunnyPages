@@ -3,4 +3,5 @@ boto3
 awscli
 jupyterlab
 sagemaker
+sagemaker-experiments
 gitpython
