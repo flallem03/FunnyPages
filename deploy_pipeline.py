@@ -85,12 +85,16 @@ def deploy(name, version, region, default_bucket, role, commit):
         # pipeline does not exists
         response = client.create_pipeline(
             PipelineName=f"{pipeline_name}",
-            PipelineDisplayName=f"{pipeline_name}-{version}",
+            PipelineDisplayName=f"{pipeline_name}-{pipeline_version}",
             PipelineDescription=f"pipeline and code in version {version}",
             PipelineDefinition=pipeline.definition(),
             RoleArn=role,
         )
 
+create_experiment(sm_client, project_name):
+    name = [ n['ExperimentName'].upper() for n in sm_client.list_experiments()['ExperimentSummaries'] ]
+    if not project_name.upper() in name:
+        my_experiment = experiment.Experiment.create(experiment_name=project_name.upper())
 
 if __name__ == "__main__":
     # validate args
@@ -101,6 +105,7 @@ if __name__ == "__main__":
     region = boto3.Session().region_name
     role = sagemaker.get_execution_role()
     default_bucket = sagemaker.session.Session().default_bucket()
+    sm = boto3.client("sagemaker")
 
     supported_tags = list()
     with open("SUPPORTED_TAGS") as tags:
@@ -130,6 +135,7 @@ if __name__ == "__main__":
                     role=role,
                     commit=str(repo.head.commit),
                 )
+                create_experiment(sm, project_name)
             else:
                 logging.warning(
                     f"unsupported environment for tag : {tag}. Tag will be ignored"

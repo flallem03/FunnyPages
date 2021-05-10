@@ -42,10 +42,6 @@ from sagemaker.workflow.steps import (
     ProcessingStep,
     TrainingStep,
 )
-from smexperiments.experiment import Experiment
-from smexperiments.trial import Trial
-from smexperiments.trial_component import TrialComponent
-from smexperiments.tracker import Tracker
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -122,33 +118,26 @@ def get_pipeline(
     )
 
     # processing step for feature engineering
-    with Tracker.create(display_name="Preprocessing", sagemaker_boto_client=sagemaker_session) as tracker:
-        tracker.log_parameters({
-            "CUSTOMER": "test",
-            "test": 0.3081,
-        })
-        # we can log the s3 uri to the dataset we just uploaded
-        tracker.log_input(name="mnist-dataset", media_type="s3/uri", value=inputs)
 
-        sklearn_processor = SKLearnProcessor(
-            framework_version="0.23-1",
-            instance_type=processing_instance_type,
-            instance_count=processing_instance_count,
-            base_job_name=f"{base_job_prefix}/sklearn-abalone-preprocess",
-            sagemaker_session=sagemaker_session,
-            role=role,
-        )
-        step_process = ProcessingStep(
-            name="PreprocessAbaloneData",
-            processor=sklearn_processor,
-            outputs=[
-                ProcessingOutput(output_name="train", source="/opt/ml/processing/train"),
-                ProcessingOutput(output_name="validation", source="/opt/ml/processing/validation"),
-                ProcessingOutput(output_name="test", source="/opt/ml/processing/test"),
-            ],
-            code=os.path.join(BASE_DIR, "preprocess.py"),
-            job_arguments=["--input-data", input_data, "--customer_name", customer_name],
-        )
+    sklearn_processor = SKLearnProcessor(
+        framework_version="0.23-1",
+        instance_type=processing_instance_type,
+        instance_count=processing_instance_count,
+        base_job_name=f"{base_job_prefix}/sklearn-abalone-preprocess",
+        sagemaker_session=sagemaker_session,
+        role=role,
+    )
+    step_process = ProcessingStep(
+        name="PreprocessAbaloneData",
+        processor=sklearn_processor,
+        outputs=[
+            ProcessingOutput(output_name="train", source="/opt/ml/processing/train"),
+            ProcessingOutput(output_name="validation", source="/opt/ml/processing/validation"),
+            ProcessingOutput(output_name="test", source="/opt/ml/processing/test"),
+        ],
+        code=os.path.join(BASE_DIR, "preprocess.py"),
+        job_arguments=["--input-data", input_data, "--customer_name", customer_name],
+    )
 
     # training step for generating model artifacts
     model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
@@ -178,6 +167,7 @@ def get_pipeline(
         subsample=0.7,
         silent=0,
     )
+
     step_train = TrainingStep(
         name="TrainAbaloneModel",
         estimator=xgb_train,

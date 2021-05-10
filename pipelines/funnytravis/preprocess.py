@@ -20,6 +20,11 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
+from smexperiments.experiment import Experiment
+from smexperiments.trial import Trial
+from smexperiments.trial_component import TrialComponent
+from smexperiments.tracker import Tracker
+
 # Since we get a headerless CSV file we specify the column names here.
 feature_columns_names = [
     "sex",
@@ -72,6 +77,16 @@ if __name__ == "__main__":
     fn = f"{base_dir}/data/abalone-dataset.csv"
     s3 = boto3.resource("s3")
     s3.Bucket(bucket).download_file(key, fn)
+
+    sess = boto3.Session()
+    sm = sess.client('sagemaker')
+    with Tracker.create(display_name="F-Preprocessing", sagemaker_boto_client=sm) as tracker:
+        tracker.log_parameters({
+            "CUSTOMER": "test",
+            "test": 0.3081,
+        })
+        # we can log the s3 uri to the dataset we just uploaded
+        tracker.log_input(name="funny-travis", media_type="s3/uri", value=fn)
 
     logger.debug(f"[{customer_name}] Reading downloaded data.")
     df = pd.read_csv(
